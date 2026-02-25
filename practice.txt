@@ -1,0 +1,2 @@
+今日はGit練習の日です。
+add → commit → push を練習します。

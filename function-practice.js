@@ -35,7 +35,7 @@ function showTopEmployees() {
     console.log("優秀社員");
     console.log("------------------");
     employees.forEach(emp => {
-if(evaluate(emp) === "優秀")　{
+if(evaluate(emp) === "優秀") {
     console.log(emp.name);
 }
     })

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>社員管理アプリ</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>社員管理アプリ</h1>
+
+    <!-- 社員一覧 -->
+    <section>
+        <h2>社員一覧</h2>
+        <button id="sort-score">点数順にソート</button>
+        <table id="employee-table">
+            <thead>
+                <tr>
+                    <th>名前</th>
+                    <th>点数</th>
+                    <th>出勤率</th>
+                    <th>評価</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- JSで社員情報を追加 -->
+            </tbody>
+        </table>
+    </section>
+
+    <!-- 社員追加フォーム -->
+    <section>
+        <h2>社員追加</h2>
+        <form id="add-employee-form">
+            <input type="text" id="name" placeholder="名前" required>
+            <input type="number" id="score" placeholder="点数" min="0" max="100" required>
+            <input type="number" id="attendance" placeholder="出勤率(%)" min="0" max="100" required>
+            <button type="submit">追加</button>
+        </form>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>

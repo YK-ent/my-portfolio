@@ -1,0 +1,60 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f6f8;
+}
+
+/* 全体 */
+.container {
+  max-width: 500px;
+  margin: 50px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 10px;
+}
+
+/* タイトル */
+h1 {
+  text-align: center;
+}
+
+/* 入力欄 */
+input {
+  padding: 8px;
+  margin: 5px 5px 10px 0;
+}
+
+/* ボタン */
+button {
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #ddd;
+}
+
+/* リスト */
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* 削除ボタンだけ色変える */
+li button {
+  background-color: #ff6b6b;
+  color: white;
+  border: none;
+}
+
+li button:hover {
+  background-color: #ff4d4d;
+}

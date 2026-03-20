@@ -6,6 +6,7 @@ const list = document.getElementById("list");
 const searchInput = document.getElementById("search");
 
 let employees = [];
+let nextId = 1;
 
 function render() {
   list.innerHTML = "";
@@ -13,12 +14,12 @@ function render() {
   const keyword = searchInput.value;
 
   const filtered = employees.filter(emp =>
-    emp.includes(keyword)
+    emp.name.includes(keyword)
   );
 
   filtered.forEach(emp => {
     const li = document.createElement("li");
-    li.textContent = emp;
+    li.textContent = emp.name;
 
     //削除ボタンを作成
     const deleteBtn = document.createElement("button");
@@ -27,7 +28,7 @@ function render() {
 
      // 削除ボタンにクリックイベント
     deleteBtn.addEventListener("click", () => {
-      employees = employees.filter(e => e !== emp); // 配列から削除
+      employees = employees.filter(e => e.id !== emp.id); // 配列から削除
       render(); // 画面更新
     });
 
@@ -40,9 +41,13 @@ button.addEventListener("click", () => {
     const name = input.value.trim();
     if(!name) return;
 
-  employees.push(name);
+  employees.push({
+    id: nextId++,
+    name: name
+  });
+
   render();
-  input.value = ""; // 入力欄を空にする
+
 });
 
 searchInput.addEventListener("input", () => {

@@ -19,15 +19,17 @@ function render() {
 
   filtered.forEach(emp => {
     const li = document.createElement("li");
-    li.textContent = emp.name;
+    li.textContent = `${emp.id}: ${emp.name}`;
 
     //削除ボタンを作成
     const deleteBtn = document.createElement("button");
     deleteBtn.textContent = "削除";
     deleteBtn.style.marginLeft = "10px";
+    
 
      // 削除ボタンにクリックイベント
     deleteBtn.addEventListener("click", () => {
+      if(confirm("本当に削除しますか？"))
       employees = employees.filter(e => e.id !== emp.id); // 配列から削除
       render(); // 画面更新
     });
@@ -48,9 +50,18 @@ button.addEventListener("click", () => {
 
   render();
 
+  input.value ="";
+
 });
 
 searchInput.addEventListener("input", () => {
    render();
 });
+
+input.addEventListener("keypress", (e) => {
+  if(e.key === "Enter"){
+    button.click();
+  }
+});
+
 

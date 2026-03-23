@@ -9,18 +9,23 @@
   <h1>社員管理アプリ</h1>
 
   <!-- 入力欄と追加ボタンを横並びに -->
-  <div id"input-container">
+  <div id="input-container">
     <input type="text" id="name" placeholder="名前を入力">
-    <botton id="addBtn">追加</botton>
+    <button id="addBtn">追加</botton>
   </div>
   
   <!-- 検索欄 -->
   <input type="text" id="search" placeholder="検索">
-  
+  <select id="sort">
+    <option value="id">ID順</option>
+    <option value="name">名前順</option>
+  </select>
 
   <ul id="list"></ul>
 
   <script src="script.js"></script>
+
+
 
 </body>
 </html>

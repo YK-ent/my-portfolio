@@ -4,18 +4,29 @@ const input = document.getElementById("name");
 const button = document.getElementById("addBtn");
 const list = document.getElementById("list");
 const searchInput = document.getElementById("search");
+const sortSelect = document.getElementById("sort");
 
 let employees = [];
 let nextId = 1;
 
+//描画処理
 function render() {
   list.innerHTML = "";
 
   const keyword = searchInput.value;
 
-  const filtered = employees.filter(emp =>
+  let filtered = employees.filter(emp =>
     emp.name.includes(keyword)
   );
+
+  //SORT
+  const sortValue = sortSelect.value;
+  filtered.sort((a, b) => {
+    if(sortValue === "name") {
+      return a.name.localeCompare(b.name);
+    }
+    return a.id - b.id;
+  });
 
   filtered.forEach(emp => {
     const li = document.createElement("li");
@@ -29,9 +40,10 @@ function render() {
 
      // 削除ボタンにクリックイベント
     deleteBtn.addEventListener("click", () => {
-      if(confirm("本当に削除しますか？"))
-      employees = employees.filter(e => e.id !== emp.id); // 配列から削除
-      render(); // 画面更新
+      if(confirm("本当に削除しますか？")) {
+        deleteEmployee(emp.id);
+        render();
+      }
     });
 
     li.appendChild(deleteBtn)
@@ -39,29 +51,42 @@ function render() {
   });
 }
 
-button.addEventListener("click", () => {
-    const name = input.value.trim();
-    if(!name) return;
 
+//データ操作
+function addEmployee(name) {
   employees.push({
     id: nextId++,
     name: name
   });
+}
 
+function deleteEmployee(id) {
+  employees = employees.filter(e => e.id !== id);
+}
+
+//追加ボタン
+button.addEventListener("click", () => {
+  const name = input.value.trim();
+  if(!name) return;
+
+  addEmployee(name);
   render();
+  input.value = "";
+})
 
-  input.value ="";
+//検索
+searchInput.addEventListener("input", render);
 
-});
-
-searchInput.addEventListener("input", () => {
-   render();
-});
-
-input.addEventListener("keypress", (e) => {
+//Enterキー
+input.addEventListener("keydown", (e) => {
   if(e.key === "Enter"){
     button.click();
   }
 });
 
+//ソート変更
+sortSelect.addEventListener("change", render);
+
+//初期表示
+render();
 

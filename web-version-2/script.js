@@ -9,6 +9,26 @@ const sortSelect = document.getElementById("sort");
 let employees = [];
 let nextId = 1;
 
+//保存
+function saveEmployees() {
+  localStorage.setItem("employees", JSON.stringify(employees));
+  localStorage.setItem("nextId", nextId);
+}
+
+//読み込み
+function loadEmployees() {
+  const data = localStorage.getItem("employees");
+  const savedId = localStorage.getItem("nextId");
+
+  if (data) {
+    employees = JSON.parse(data);
+  }
+
+  if (savedId) {
+    nextId = Number(savedId);
+  }
+}
+
 //描画処理
 function render() {
   list.innerHTML = "";
@@ -58,10 +78,13 @@ function addEmployee(name) {
     id: nextId++,
     name: name
   });
+
+  saveEmployees();
 }
 
 function deleteEmployee(id) {
   employees = employees.filter(e => e.id !== id);
+  saveEmployees();
 }
 
 //追加ボタン
@@ -88,5 +111,6 @@ input.addEventListener("keydown", (e) => {
 sortSelect.addEventListener("change", render);
 
 //初期表示
+loadEmployees();
 render();
 

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>カフェ空席状況アプリ</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>カフェ空席状況アプリ</h1>
+
+  <!-- 検索・フィルタ -->
+  <div id="controls">
+    <button id="showAll">全席表示</button>
+    <button id="showAvailable">空席のみ表示</button>
+    <input type="text" id="search" placeholder="席番号で検索">
+  </div>
+
+  <!-- 席リスト -->
+  <ul id="seatList"></ul>
+
+  <!-- 新規席追加 -->
+  <div id="addSeatContainer">
+    <input type="text" id="seatName" placeholder="席名を入力">
+    <button id="addSeatBtn">追加</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

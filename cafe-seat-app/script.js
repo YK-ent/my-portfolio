@@ -35,17 +35,48 @@ function render(filterAvailable = false) {
 
   filtered.forEach(seat => {
     const li = document.createElement("li");
-    li.textContent = seat.name;
-    li.className = seat.available ? "available" : "occupied";
 
-    // 利用中/空席切替ボタン
+    // --- ここから：状態判定とクラス付与 ---
+    let statusIcon = "🔴";
+    let statusText = "利用中";
+    li.classList.remove("available", "occupied", "reserved");
+
+    if (seat.available) {
+      statusIcon = "🟢";
+      statusText = "空席";
+      li.classList.add("available");
+    } else if (seat.reservedBy) {
+      statusIcon = "🟡";
+      statusText = `予約済(${seat.reservedBy})`;
+      li.classList.add("reserved");
+    } else {
+      li.classList.add("occupied");
+    }
+
+    // アイコン、テキスト、席名をまとめて入れる
+    li.innerHTML = `<span>${statusIcon} ${statusText}</span> <strong>${seat.name}</strong>`;
+
+    // --- ここから：操作ボタンの作成 ---
     const toggleBtn = document.createElement("button");
-    toggleBtn.textContent = seat.available ? "利用中にする" : "空席にする";
-    toggleBtn.addEventListener("click", () => {
-      seat.available = !seat.available;
-      saveSeats();
-      render(filterAvailable);
-    });
+    
+    if (seat.reservedBy) {
+      toggleBtn.textContent = "予約を解除";
+      toggleBtn.addEventListener("click", () => {
+        if(confirm("予約をキャンセルして空席に戻しますか？")) {
+          seat.reservedBy = null;
+          seat.available = true;
+          saveSeats();
+          render(filterAvailable);
+        }
+      });
+    } else {
+      toggleBtn.textContent = seat.available ? "利用中にする" : "空席にする";
+      toggleBtn.addEventListener("click", () => {
+        seat.available = !seat.available;
+        saveSeats();
+        render(filterAvailable);
+      });
+    }
 
     li.appendChild(toggleBtn);
     seatList.appendChild(li);
@@ -61,6 +92,13 @@ addSeatBtn.addEventListener("click", () => {
   seatNameInput.value = "";
   saveSeats();
   render();
+});
+
+// Enterキーで席追加
+seatNameInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    addSeatBtn.click(); // クリックと同じ処理を呼ぶ
+  }
 });
 
 // ---------------- 検索 ----------------

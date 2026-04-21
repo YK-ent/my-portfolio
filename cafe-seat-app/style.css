@@ -31,20 +31,81 @@ ul {
   margin-top: 20px;
 }
 
+/* 背景色と左側の太線を付けて分かりやすくする */
+li.available { background-color: #d4edda; border-left: 5px solid #28a745; }
+li.occupied { background-color: #f8d7da; border-left: 5px solid #dc3545; }
+li.reserved { background-color: #fff3cd; border-left: 5px solid #ffc107; }
+
+/* レイアウト調整 */
 li {
-  margin: 10px auto;
-  padding: 10px;
-  width: 300px;
-  background: #fafafa;
-  border-radius: 8px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  padding: 15px;
+  width: 90%;          /* 幅を可変にする（スマホ対応への第一歩） */
+  max-width: 400px;    /* 広がりすぎないように制限 */
+  margin: 10px auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
-li.available {
-  background-color: #d4edda;
+
+span strong {
+  margin-left: 10px;
 }
-li.occupied {
-  background-color: #f8d7da;
+
+/* --- スマホ・タブレット対応（レスポンシブ） --- */
+
+/* 画面の幅が600pxより小さい時（スマホなど）に適用されるルール */
+@media (max-width: 600px) {
+  body {
+    padding: 10px; /* 余白を少し削る */
+  }
+
+  h1 {
+    font-size: 1.5rem; /* タイトルを少し小さく */
+  }
+
+  /* 検索や追加エリアのボタンを押しやすくする */
+  #controls, #addSeatContainer {
+    display: flex;
+    flex-direction: column; /* 縦に並べる */
+    align-items: center;
+  }
+
+  #controls input, 
+  #addSeatContainer input {
+    width: 90%;
+    margin-bottom: 10px;
+    padding: 12px; /* 入力欄を大きく */
+    font-size: 16px; /* スマホでズームされないように16px以上に設定 */
+  }
+
+  #controls button, 
+  #addSeatContainer button {
+    width: 90%;
+    padding: 12px;
+    font-size: 16px;
+  }
+
+  /* 席リストの調整 */
+  li {
+    flex-direction: column; /* アイコンとボタンを縦に並べる */
+    width: 95%;
+    gap: 10px;
+    text-align: center;
+    padding: 20px 10px; /* 上下の余白を広げてタップしやすく */
+  }
+
+  li span {
+    font-size: 1.1rem;
+  }
+
+  /* リスト内のボタンを横幅いっぱいに */
+  li button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    background-color: #007BFF; /* 前の青色に戻す */
+    color: white;              /* 文字を白にする */
+  }
 }

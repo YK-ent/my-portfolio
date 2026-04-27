@@ -1,3 +1,24 @@
+// 1. Firebaseの機能をインポート
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+// 2. 接続キー（客側と同じものでOK）
+const firebaseConfig = {
+  apiKey: "AIzaSyCFLoxAtq1XzjNjWSGop8pLT6hUw6z8prw",
+  authDomain: "cafe-app-firebase-5fb26.firebaseapp.com",
+  projectId: "cafe-app-firebase-5fb26",
+  storageBucket: "cafe-app-firebase-5fb26.firebasestorage.app",
+  messagingSenderId: "512184508181",
+  appId: "1:512184508181:web:4db0dc3f4ffdff4241131c",
+  measurementId: "G-8272DNLWTY"
+};
+
+// 3. Firebaseを起動
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// 4. 接続確認用のログ
+console.log("店側もFirebase接続完了！", db);
 // ---------------- DOM取得 ----------------
 const seatList = document.getElementById("seatList");
 const seatNameInput = document.getElementById("seatName");

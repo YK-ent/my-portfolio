@@ -27,9 +27,28 @@ function loadSeats() {
   return data ? JSON.parse(data) : [];
 }
 
-// ---------------- データ保存 ----------------
-function saveSeats(seats) {
+// ---------------- データ保存 (Firebase版) ----------------
+async function saveSeats(seats) {
+  // 1. 今までのlocalStorageへの保存も一応残しておく（バックアップ用）
   localStorage.setItem("seats", JSON.stringify(seats));
+
+  // 2. 予約された最新のデータをFirebaseに送信する（ここが新規！）
+  // ※今回は「いつ、誰が、どの席を」予約したかの履歴を送る形にしてみます
+  const reservedSeats = seats.filter(s => !s.available && s.reservedBy);
+  
+  if (reservedSeats.length > 0) {
+    try {
+      const latestOrder = reservedSeats[reservedSeats.length - 1]; // 最新の1件
+      const docRef = await addDoc(collection(db, "orders"), {
+        seatName: latestOrder.name,
+        userName: latestOrder.reservedBy,
+        timestamp: new Date()
+      });
+      console.log("Firebaseに注文が保存されました！ ID:", docRef.id);
+    } catch (e) {
+      console.error("保存に失敗しました: ", e);
+    }
+  }
 }
 
 // ---------------- 描画 ----------------

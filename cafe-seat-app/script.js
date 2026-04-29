@@ -1,6 +1,6 @@
 // 1. Firebaseの機能をインポート
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, onSnapshot ,query ,orderBy} from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
 // 2. 接続キー（客側と同じものでOK）
 const firebaseConfig = {
@@ -129,6 +129,35 @@ searchInput.addEventListener("input", () => render());
 showAllBtn.addEventListener("click", () => render(false));
 showAvailableBtn.addEventListener("click", () => render(true));
 
+
 // ---------------- 初期表示 ----------------
 loadSeats();
 render();
+
+// ---------------- リアルタイム監視 (Firebase版) ----------------
+const q = query(collection(db, "orders"), orderBy("timestamp", "desc"));
+
+onSnapshot(q, (snapshot) => {
+  console.log("クラウドで更新がありました！");
+  
+  // 1. まずは最新の予約データをすべて取得する
+  const orders = snapshot.docs.map(doc => doc.data());
+
+  // 2. 既存の席データ（localStorage）に予約情報を反映させる
+  loadSeats();
+  
+  orders.forEach(order => {
+    // 席名が一致するものを探して「予約済」にする
+    const targetSeat = seats.find(s => s.name === order.seatName);
+    if (targetSeat && targetSeat.available) {
+      targetSeat.available = false;
+      targetSeat.reservedBy = order.userName;
+    }
+  });
+
+  // 3. 最後に「画面を再描画」する！（これが重要）
+  localStorage.setItem("seats", JSON.stringify(seats)); // ローカルも更新しておく
+  render(); 
+  
+  console.log("画面を最新の状態に更新しました！");
+});

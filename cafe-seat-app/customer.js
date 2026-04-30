@@ -1,8 +1,6 @@
-// 1. Firebaseの機能をインポート（必要な分だけ）
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+import { getFirestore, collection, onSnapshot, doc, updateDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
-// 2. 山田さんのプロジェクト専用の「接続キー」
 const firebaseConfig = {
   apiKey: "AIzaSyCFLoxAtq1XzjNjWSGop8pLT6hUw6z8prw",
   authDomain: "cafe-app-firebase-5fb26.firebaseapp.com",
@@ -13,98 +11,48 @@ const firebaseConfig = {
   measurementId: "G-8272DNLWTY"
 };
 
-// 3. Firebaseを起動
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-
-// 4. 接続確認用のログ
-console.log("Firebaseとの接続準備が整いました！", db);
 const seatList = document.getElementById("seatList");
 
-// ---------------- データ読み込み ----------------
-function loadSeats() {
-  const data = localStorage.getItem("seats");
-  return data ? JSON.parse(data) : [];
-}
-
-// ---------------- データ保存 (Firebase版) ----------------
-async function saveSeats(seats) {
-  // 1. 今までのlocalStorageへの保存も一応残しておく（バックアップ用）
-  localStorage.setItem("seats", JSON.stringify(seats));
-
-  // 2. 予約された最新のデータをFirebaseに送信する（ここが新規！）
-  // ※今回は「いつ、誰が、どの席を」予約したかの履歴を送る形にしてみます
-  const reservedSeats = seats.filter(s => !s.available && s.reservedBy);
-  
-  if (reservedSeats.length > 0) {
-    try {
-      const latestOrder = reservedSeats[reservedSeats.length - 1]; // 最新の1件
-      const docRef = await addDoc(collection(db, "orders"), {
-        seatName: latestOrder.name,
-        userName: latestOrder.reservedBy,
-        timestamp: new Date()
-      });
-      console.log("Firebaseに注文が保存されました！ ID:", docRef.id);
-    } catch (e) {
-      console.error("保存に失敗しました: ", e);
-    }
-  }
-}
-
-// ---------------- 描画 ----------------
-function render() {
-  const seats = loadSeats();
+// ---------------- 描画関数 ----------------
+function render(seatsData) {
   seatList.innerHTML = "";
-
-  seats.forEach(seat => {
+  
+  seatsData.forEach(seat => {
     const li = document.createElement("li");
-    
-    // 全体をリセット
-    li.className = ""; 
+    li.className = seat.status === "available" ? "available" : (seat.status === "reserved" ? "reserved" : "occupied");
 
-    if (seat.available) {
-      li.classList.add("available");
+    if (seat.status === "available") {
       li.innerHTML = `<span>🟢 空席 <strong>${seat.name}</strong></span>`;
-      
-      const reserveBtn = document.createElement("button");
-      reserveBtn.textContent = "予約する";
-      reserveBtn.addEventListener("click", () => {
+      const btn = document.createElement("button");
+      btn.textContent = "予約する";
+      btn.onclick = async () => {
         const userName = prompt("予約名を入力してください");
-        if (!userName) return;
-        seat.reservedBy = userName;
-        seat.available = false;
-        saveSeats(seats);
-        render();
-      });
-      li.appendChild(reserveBtn);
-      
-    } else if (seat.reservedBy) {
-      li.classList.add("reserved");
-      li.innerHTML = `<span>🟡 予約済(${seat.reservedBy}) <strong>${seat.name}</strong></span>`;
-      
-      const cancelBtn = document.createElement("button");
-      cancelBtn.textContent = "キャンセル";
-      cancelBtn.addEventListener("click", () => {
-        if(confirm("予約をキャンセルしますか？")) {
-          seat.reservedBy = null;
-          seat.available = true;
-          saveSeats(seats);
-          render();
+        if (userName) {
+          await updateDoc(doc(db, "seats", seat.id), {
+            status: "reserved",
+            reservedBy: userName
+          });
         }
-      });
-      li.appendChild(cancelBtn);
-      
+      };
+      li.appendChild(btn);
+    } else if (seat.status === "reserved") {
+      li.innerHTML = `<span>🟡 予約済(${seat.reservedBy}) <strong>${seat.name}</strong></span>`;
     } else {
-      li.classList.add("occupied");
       li.innerHTML = `<span>🔴 利用中 <strong>${seat.name}</strong></span>`;
     }
-
     seatList.appendChild(li);
   });
 }
 
-// ---------------- 初期表示 ----------------
-render();
+// ---------------- リアルタイム監視 ----------------
+const q = query(collection(db, "seats"), orderBy("timestamp", "asc"));
 
-// 🔄 3秒ごとに更新
-setInterval(render, 3000);
+onSnapshot(q, (snapshot) => {
+  const seatsData = snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data()
+  }));
+  render(seatsData);
+});

@@ -43,27 +43,38 @@ function render(seatsData) {
 
     li.innerHTML = `<span>${statusIcon} ${statusText}</span> <strong>${seat.name}</strong>`;
 
-    const toggleBtn = document.createElement("button");
-    
-    if (seat.status === "reserved") {
-      toggleBtn.textContent = "予約を解除";
-      toggleBtn.addEventListener("click", async () => {
-        if(confirm("予約をキャンセルして空席に戻しますか？")) {
-          await updateDoc(doc(db, "seats", seat.id), {
-            status: "available",
-            reservedBy: ""
-          });
+    const btnContainer = document.createElement("div");
+
+    if(seat.status === "reserved") {
+      // 予約済みの時：解除ボタン＋入店ボタン
+      const cancelBtn = document.createElement("button");
+      cancelBtn.textContent = "予約解除";
+      cancelBtn.onclick = async () => {
+        if(confirm("予約をキャンセルしますか？")) {
+          // ★修正：reservedByを空にする
+          await updateDoc(doc(db, "seats", seat.id), { status: "available", reservedBy: "" });
         }
-      });
+      };
+      btnContainer.appendChild(cancelBtn);
+
+      // ★修正：bottumではなくbutton
+      const startBtn = document.createElement("button");
+      startBtn.textContent = "入店（利用中へ）";
+      startBtn.style.backgroundColor = "#ff4757"; 
+      startBtn.style.color = "white";
+      startBtn.onclick = async () => {
+        await updateDoc(doc(db, "seats", seat.id), { status: "occupied", reservedBy: "" });
+      };
+      btnContainer.appendChild(startBtn);
+
     } else {
+      const toggleBtn = document.createElement("button");
       toggleBtn.textContent = seat.status === "available" ? "利用中にする" : "空席にする";
-      toggleBtn.addEventListener("click", async () => {
+      toggleBtn.onclick = async () => {
         const nextStatus = seat.status === "available" ? "occupied" : "available";
-        await updateDoc(doc(db, "seats", seat.id), {
-          status: nextStatus,
-          reservedBy: ""
-        });
-      });
+        await updateDoc(doc(db, "seats", seat.id), { status: nextStatus, reservedBy: "" });
+      };
+      btnContainer.appendChild(toggleBtn);
     }
 
     const delBtn = document.createElement("button");
@@ -75,31 +86,37 @@ function render(seatsData) {
       }
     };
 
-    li.appendChild(toggleBtn);
+    li.appendChild(btnContainer);
     li.appendChild(delBtn);
-    seatList.appendChild(li);
+    seatList.appendChild(li); // ★これも最後に必要！
   }); 
 }
 
 // ---------------- 新規席追加 ----------------
-addSeatBtn.addEventListener("click", async () => {
+const addNewSeat = async () => {
   const name = seatNameInput.value.trim();
-  if (!name) return alert("席名を入力してください");
+  if(!name) return alert("席名を入力してください");
 
-  // 席名をIDにしてFirebaseに新規作成
   await setDoc(doc(db, "seats", name), {
     name: name,
     status: "available",
     reservedBy: "",
     timestamp: new Date()
   });
-  
+
+  // ★修正：Inputのスペルミス修正
   seatNameInput.value = "";
+};
+
+addSeatBtn.addEventListener("click", addNewSeat);
+seatNameInput.addEventListener("keydown", (e)=> {
+  if(e.key === "Enter") {
+    addNewSeat();
+  }
 });
 
-// ---------------- リアルタイム監視 (Firebase) ----------------
+// リアルタイム監視
 const q = query(collection(db, "seats"), orderBy("timestamp", "asc"));
-
 onSnapshot(q, (snapshot) => {
   const seatsData = snapshot.docs.map(doc => ({
     id: doc.id,

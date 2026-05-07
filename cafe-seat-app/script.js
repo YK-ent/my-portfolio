@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-import { getFirestore, collection, onSnapshot, doc, setDoc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+import { getFirestore, collection, onSnapshot, doc, setDoc, updateDoc, deleteDoc, query, orderBy, getDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCFLoxAtq1XzjNjWSGop8pLT6hUw6z8prw",
@@ -96,6 +96,14 @@ function render(seatsData) {
 const addNewSeat = async () => {
   const name = seatNameInput.value.trim();
   if(!name) return alert("席名を入力してください");
+
+  const seatRef = doc(db, "seats", name);
+  const seatSnap = await getDoc(seatRef);
+
+  if(seatSnap.exists()) {
+    alert(`[${name}]はすでに登録されています。別の名前をつけてください。`);
+    return;
+  }
 
   await setDoc(doc(db, "seats", name), {
     name: name,

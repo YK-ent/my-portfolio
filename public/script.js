@@ -70,9 +70,14 @@ function render(seatsData) {
     } else {
       const toggleBtn = document.createElement("button");
       toggleBtn.textContent = seat.status === "available" ? "利用中にする" : "空席にする";
+
       toggleBtn.onclick = async () => {
-        const nextStatus = seat.status === "available" ? "occupied" : "available";
-        await updateDoc(doc(db, "seats", seat.id), { status: nextStatus, reservedBy: "" });
+        const actionText = seat.status === "available" ? "「利用中」に切り替えますか？" : "「空席」に戻しますか？";
+
+        if(confirm(actionText)) {
+          const nextStatus = seat.status === "available" ? "occupied" : "available";
+          await updateDoc(doc(db, "seats", seat.id), { status: nextStatus, reservedBy: "" });
+        }
       };
       btnContainer.appendChild(toggleBtn);
     }

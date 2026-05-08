@@ -23,8 +23,9 @@ function render(seatsData) {
     const li = document.createElement("li");
     li.className = seat.status === "available" ? "available" : (seat.status === "reserved" ? "reserved" : "occupied");
 
+    let statusText = "";
     if (seat.status === "available") {
-      li.innerHTML = `<span>🟢 空席 <strong>${seat.name}</strong></span>`;
+      statusText = `<span>🟢 空席 <strong>${seat.name}</strong></span>`;
       const btn = document.createElement("button");
       btn.textContent = "予約する";
       btn.onclick = async () => {
@@ -38,10 +39,39 @@ function render(seatsData) {
       };
       li.appendChild(btn);
     } else if (seat.status === "reserved") {
-      li.innerHTML = `<span>🟡 予約済(${seat.reservedBy}) <strong>${seat.name}</strong></span>`;
+      statusText = `<span>🟡 予約済(${seat.reservedBy}) <strong>${seat.name}</strong></span>`;
     } else {
-      li.innerHTML = `<span>🔴 利用中 <strong>${seat.name}</strong></span>`;
+      statusText = `<span>🔴 利用中 <strong>${seat.name}</strong></span>`;
     }
+    li.innerHTML = statusText;
+
+    const btn =document.createElement("button");
+    if (seat.status === "available") {
+      // 空席のとき：通常どおり
+      btn.textContent = "予約する";
+      btn.onclick = async () => {
+        const userName = prompt("予約名を入力してください");
+        if (userName) {
+          await updateDoc(doc(db, "seats", seat.id), {
+            status: "reserved",
+            reservedBy: userName
+          });
+        }
+      };
+    } else {
+      // 空席以外のとき：ボタンを無効化する
+      btn.disabled = true; // クリックできないようにする
+      btn.style.backgroundColor = "#ccc"; // グレー色にする
+      btn.style.cursor = "not-allowed";   // 禁止マークのカーソルにする
+      
+      if (seat.status === "reserved") {
+        btn.textContent = "予約済み";
+      } else {
+        btn.textContent = "満席";
+      }
+    }
+
+    li.appendChild(btn);
     seatList.appendChild(li);
   });
 }
